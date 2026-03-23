@@ -1,5 +1,5 @@
 # タスクAPI
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.database import SessionLocal
 from app.auth import get_current_user
@@ -20,10 +20,16 @@ def get_db():
 
 @router.get("/")
 def get_tasks(
+    skip: int = 0,
+    limit: int = 10,
     db: Session = Depends(get_db),
     current_user: models.User = Depends(get_current_user)
 ):
-    return db.query(models.Task).filter(models.Task.user_id == current_user.id).all()
+    return db.query(models.Task)\
+        .filter(models.Task.user_id == current_user.id)\
+        .offset(skip)\
+        .limit(limit)\
+        .all()
 
 
 @router.post("/")
@@ -52,7 +58,7 @@ def update_task(
     ).first()
     
     if not db_task:
-        return {"error": "Not found"}
+        raise HTTPException(status_code=404, detail="Task not found")
     
     db_task.completed = task.completed
     db.commit()
@@ -71,7 +77,7 @@ def delete_task(
     ).first()
     
     if not db_task:
-        return {"error": "Not found"}
+        return HTTPException(status_code=404, detail="Task not found")
     
     db.delete(db_task)
     db.commit()
