@@ -1,5 +1,6 @@
 # APIの入出力定義（Pydantic）
 from pydantic import BaseModel
+from datetime import datetime
 
 
 class UserCreate(BaseModel):
@@ -30,6 +31,8 @@ class TaskUpdate(BaseModel):
 class TaskResponse(TaskBase):
     id: int
     completed: bool
+    created_at: datetime
+    updated_at: datetime
     
     class Config:
         from_attributes = True
