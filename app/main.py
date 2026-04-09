@@ -12,10 +12,11 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-app.include_router(tasks.router)
-app.include_router(users.router)
-
 
 @app.get("/")
 def root():
     return {"message": "Task API is running"}
+
+
+app.include_router(users.router)
+app.include_router(tasks.router)
